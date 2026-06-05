@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나눔에 대한 모든 것. — 사회이슈분석 2026</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+
+    /* ─────────────────────────────────────────
+       DESIGN TOKENS
+       배경: 웜-오프블랙
+       브랜드: 사랑의열매 초록(--green) 메인 강조
+       보조: 베이지골드(--beige) 레이블
+       적색(--red): 위기·경고 데이터에만 (UI 미사용)
+    ───────────────────────────────────────── */
+    :root {
+      /* 배경 */
+      --bg:    #0F0E0D;
+      --bg2:   #151311;
+      --bg3:   #1C1A17;
+      --card:  #232120;
+      --card2: #2D2B28;
+
+      /* 텍스트 & 그레이스케일 */
+      --text:     #F0EDE7;
+      --muted:    #857E78;
+      --gray-700: #3C3935;
+      --gray-600: #544E49;
+      --gray-500: #7A7470;
+      --gray-400: #9E9893;
+      --gray-300: #C2BCB6;
+      --gray-200: #DED9D4;
+      --border:   rgba(255,255,255,0.07);
+
+      /* 사랑의열매 브랜드 */
+      --green:       #4A8C42;          /* 초록잎 — 메인 강조 */
+      --green-dim:   rgba(74,140,66,0.15);
+      --green-mid:   rgba(74,140,66,0.45);
+      --beige:       #D4AA6C;          /* 베이지-골드 — 레이블 */
+      --beige-dim:   rgba(212,170,108,0.10);
+      --red:         #C8172E;          /* 다홍색 — 위기 데이터만 */
+      --red-dim:     rgba(200,23,46,0.10);
+
+      /* passage 섹션 전용 의미색 */
+      --pass-blue:  #7BAAE8;
+      --pass-warm:  #E07B4A;
+      --pass-green: #52A874;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+      letter-spacing: -0.03em;
+      overflow-x: hidden;
+    }
+
+    /* ──────────────────────────────────────
+       SCROLL PROGRESS — 초록 → 베이지
+    ────────────────────────────────────── */
+    #progress-bar {
+      position: fixed; top: 56px; left: 0;
+      height: 2px; width: 0%;
+      background: linear-gradient(90deg, var(--green), var(--beige));
+      z-index: 9999;
+      transition: width 80ms linear;
+      pointer-events: none;
+    }
+
+    /* ──────────────────────────────────────
+       PARTICLE CANVAS
+    ────────────────────────────────────── */
+    #particle-canvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0; opacity: 0.24;
+    }
+
+    /* ──────────────────────────────────────
+       LAYOUT — 1920px 기준 max-width 1440px
+    ────────────────────────────────────── */
+    section {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 140px 80px;
+    }
+    .inner { width: 100%; max-width: 1440px; }
+
+    /* ──────────────────────────────────────
+       UTILITIES
+    ────────────────────────────────────── */
+    .label {
+      font-size: 13px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--beige);
+      font-weight: 600;
+      margin-bottom: 22px;
+    }
+    .fade-up {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: none; }
+
+    /* ══════════════════════════════════════
+       SECTION 1 · HERO
+       "가장 도움이 필요한 곳을 가장 먼저 찾아갑니다"
+    ══════════════════════════════════════ */
+    #s-hero {
+      text-align: center;
+      background: var(--bg);
+    }
+
+    .hero-eyebrow {
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0;
+      transition: opacity 1.2s ease 0.2s;
+    }
+    .hero-eyebrow.visible { opacity: 1; }
+
+    .hero-badge {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 6px 18px;
+      border: 1px solid rgba(74,140,66,0.35);
+      border-radius: 99px;
+      font-size: 13px;
+      color: var(--green);
+      opacity: 0;
+      transition: opacity 1s ease 0.6s;
+    }
+    .hero-badge.visible { opacity: 1; }
+
+    /* 1920px 기준 최대 108px */
+    .hero-headline {
+      margin-top: 56px;
+      font-size: clamp(44px, 6.2vw, 108px);
+      font-weight: 800;
+      letter-spacing: -0.048em;
+      line-height: 1.12;
+    }
+    .hero-line { display: block; overflow: hidden; }
+    .hero-word {
+      display: inline-block;
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .hero-word.visible  { opacity: 1; transform: none; }
+    /* 핵심 행동어 — 사랑의열매 초록 */
+    .hero-word.green { color: var(--green); }
+
+    /* 헤드라인 바로 아래 부제 */
+    .hero-subtitle {
+      margin-top: 28px;
+      font-size: clamp(18px, 1.6vw, 30px);
+      font-weight: 400;
+      letter-spacing: -0.022em;
+      color: var(--gray-300);
+      opacity: 0;
+      transition: opacity 0.9s ease 1.2s;
+    }
+    .hero-subtitle.visible { opacity: 1; }
+
+    /* 서브 — 최소 18px */
+    .hero-sub {
+      margin-top: 36px;
+      font-size: clamp(16px, 1.15vw, 20px);
+      color: var(--muted);
+      line-height: 1.85;
+      opacity: 0;
+      transition: opacity 1s ease 1.8s;
+    }
+    .hero-sub.visible { opacity: 1; }
+
+    /* 스크롤 힌트 */
+    .scroll-hint {
+      position: absolute; bottom: 44px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      color: rgba(255,255,255,0.18);
+      font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      animation: scrollBounce 2.4s ease-in-out infinite;
+    }
+    .scroll-hint-line {
+      width: 1px; height: 44px;
+      background: linear-gradient(180deg,rgba(255,255,255,0.18),transparent);
+    }
+    @keyframes scrollBounce {
+      0%,100%{transform:translateX(-50%) translateY(0)}
+      55%{transform:translateX(-50%) translateY(9px)}
+    }
+
+    /* ══════════════════════════════════════
+       SECTION 2 · MISSION STATEMENT
+       (구 카라오케 — 완전 재설계)
+       전체 텍스트 즉시 가시 + 키워드에만 형광펜 마커
+    ══════════════════════════════════════ */
+    #s-mission { background: var(--bg2); }
+
+    .mission-wrap {
+      max-width: 1280px;
+      text-align: center;
+    }
+
+    /* 1920px: 3.0vw × 1920 = 57.6 → 상한 46px */
+    .mission-text {
+      font-size: clamp(24px, 3.0vw, 46px);
+      font-weight: 500;
+      line-height: 1.82;
+      letter-spacing: -0.035em;
+      color: var(--text);
+    }
+
+    /* 미션 마지막 결론 문장 */
+    .mission-closing {
+      display: block;
+      margin-top: 0.6em;
+      font-size: clamp(16px, 1.4vw, 26px);
+      font-weight: 400;
+      color: var(--gray-400);
+      letter-spacing: -0.02em;
+    }
+
+    /* ── 키워드 마커 하이라이트 ──
+       형광펜처럼 아래쪽에서 배경이 좌→우로 그려짐
+       폰트 굵기로 우선 구분, 그 위에 녹색 언더마커 */
+    .k-word {
+      font-weight: 800;
+      position: relative;
+      white-space: nowrap;
+      /* 마커 배경: height 38% = 텍스트 하단 영역 */
+      background-image: linear-gradient(var(--green-dim), var(--green-dim));
+      background-size: 0% 38%;
+      background-repeat: no-repeat;
+      background-position: 0% 100%;
+      /* 밑줄 */
+      border-bottom: 2px solid transparent;
+      padding-bottom: 2px;
+      /* 전환: 마커 0.65s → 이후 0.2s 딜레이 후 밑줄 */
+      transition:
+        background-size 0.65s cubic-bezier(0.22,1,0.36,1),
+        border-color 0.3s ease 0.4s;
+      cursor: default;
+    }
+    /* 스크롤 진입 후 JS가 .drawn 추가 */
+    .k-word.drawn {
+      background-size: 100% 38%;
+      border-bottom-color: var(--green-mid);
+    }
+    /* 호버 시 배경 살짝 더 강조 */
+    .k-word:hover {
+      background-image: linear-gradient(rgba(74,140,66,0.22), rgba(74,140,66,0.22));
+    }
+
+    /* ══════════════════════════════════════
+       SECTION 3 · COUNTERS
+    ══════════════════════════════════════ */
+    #s-counters { background: var(--bg3); }
+
+    .counters-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+      max-width: 1440px; width: 100%;
+    }
+    .c-card {
+      background: var(--bg3);
+      padding: 72px 52px; text-align: center;
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .c-card.visible { opacity: 1; transform: none; }
+    .c-card:nth-child(2){ transition-delay: 0.14s; }
+    .c-card:nth-child(3){ transition-delay: 0.28s; }
+
+    .c-num {
+      font-size: clamp(60px, 6vw, 96px);
+      font-weight: 800; letter-spacing: -0.055em; line-height: 1;
+      color: var(--text);
+    }
+    .c-unit {
+      font-size: clamp(30px, 3vw, 46px);
+      font-weight: 700; color: var(--gray-400);
+    }
+    .c-label {
+      margin-top: 20px;
+      font-size: clamp(16px, 1.3vw, 22px);
+      font-weight: 700;
+    }
+    .c-desc {
+      margin-top: 12px;
+      font-size: clamp(14px, 1.05vw, 17px);
+      color: var(--muted); line-height: 1.75;
+    }
+
+    /* ══════════════════════════════════════
+       SECTION 4 · CATEGORIES
+    ══════════════════════════════════════ */
+    #s-categories {
+      background: var(--bg);
+      padding-top: 140px; padding-bottom: 140px; min-height: auto;
+    }
+
+    .sec-header { text-align: center; margin-bottom: 64px; }
+    .sec-title {
+      font-size: clamp(30px, 3.8vw, 64px);
+      font-weight: 800; letter-spacing: -0.046em;
+    }
+    .sec-title em { font-style: normal; color: var(--beige); }
+
+    .cat-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+      max-width: 1440px; width: 100%;
+    }
+    .cat-card {
+      background: var(--bg);
+      padding: 36px 30px 32px;
+      opacity: 0; transform: translateY(16px) scale(0.97);
+      transition: opacity 0.5s ease, transform 0.5s ease, background 0.22s ease;
+      cursor: default;
+    }
+    .cat-card.visible { opacity: 1; transform: none; }
+    .cat-card:hover   { background: var(--green-dim); }
+
+    .cat-kind {
+      font-size: 12px; letter-spacing: 0.14em;
+      text-transform: uppercase; font-weight: 600; margin-bottom: 14px;
+    }
+    .cat-kind.target { color: var(--beige); }
+    .cat-kind.theme  { color: var(--gray-500); }
+
+    .cat-icon  { font-size: 28px; margin-bottom: 14px; }
+    .cat-name  {
+      font-size: clamp(17px, 1.3vw, 23px);
+      font-weight: 700; line-height: 1.25;
+    }
+    .cat-rule  { width: 20px; height: 1px; background: var(--border); margin: 16px 0; }
+    .cat-tags  {
+      font-size: clamp(13px, 1.0vw, 17px);
+      color: rgba(240,237,231,0.46);
+      line-height: 1.8;
+    }
+
+    /* ══════════════════════════════════════
+       SECTION 5 · HIGHLIGHT PASSAGE
+    ══════════════════════════════════════ */
+    #s-highlights {
+      background: var(--bg2);
+      padding-top: 140px; padding-bottom: 140px; min-height: auto;
+    }
+
+    .hl-hint {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--muted);
+      border: 1px solid var(--border); border-radius: 99px;
+      padding: 4px 14px; margin-left: 14px;
+      vertical-align: middle; position: relative; top: -2px;
+    }
+    .hl-hint::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--beige);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100%{opacity:1;transform:scale(1)}
+      50%{opacity:0.5;transform:scale(1.4)}
+    }
+
+    .passage {
+      font-size: clamp(19px, 2.3vw, 38px);
+      font-weight: 600; line-height: 2;
+      letter-spacing: -0.03em;
+      color: rgba(240,237,231,0.38);
+    }
+    .hl {
+      color: var(--text); cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+      transition: color 0.18s, border-color 0.18s;
+      white-space: nowrap;
+    }
+    .hl:hover, .hl.active { border-color: currentColor; }
+    .hl.blue  { color: var(--pass-blue); }
+    .hl.warm  { color: var(--pass-warm); }
+    .hl.green { color: var(--pass-green); }
+
+    /* ──────────────────────────────────────
+       SIDE PANEL
+    ────────────────────────────────────── */
+    #side-panel {
+      position: fixed; top: 50%; right: -480px;
+      transform: translateY(-50%);
+      width: 440px; max-height: 82vh; overflow-y: auto;
+      background: #1A1916;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-right: none;
+      border-radius: 16px 0 0 16px;
+      padding: 48px 40px;
+      z-index: 200;
+      transition: right 0.42s cubic-bezier(0.32,0.72,0,1);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    #side-panel.open { right: 0; }
+
+    .panel-close {
+      position: absolute; top: 18px; right: 18px;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 50%;
+      color: var(--muted); font-size: 14px; cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .panel-close:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+
+    .p-eyebrow { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; margin-bottom: 12px; }
+    .p-title   { font-size: 30px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.2; margin-bottom: 24px; }
+    .p-rule    { height: 1px; background: rgba(255,255,255,0.08); margin: 24px 0; }
+    .p-stat-num   { font-size: 50px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; }
+    .p-stat-label { font-size: 14px; color: var(--muted); margin-top: 6px; }
+    .p-body    { font-size: 16px; line-height: 1.85; color: rgba(240,237,231,0.58); margin-top: 20px; }
+    .p-quote   { margin-top: 24px; padding: 18px 20px; border-radius: 0 8px 8px 0; }
+    .p-quote p    { font-size: 14px; line-height: 1.75; font-style: italic; color: rgba(240,237,231,0.5); }
+    .p-quote cite { display: block; margin-top: 8px; font-size: 12px; color: var(--muted); font-style: normal; letter-spacing: 0.03em; }
+    .p-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 22px; }
+    .p-tag  { padding: 5px 13px; border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; font-size: 12px; color: rgba(240,237,231,0.4); }
+
+    /* ══════════════════════════════════════
+       SECTION 6 · CTA
+    ══════════════════════════════════════ */
+    #s-cta { background: var(--bg); text-align: center; min-height: 70vh; }
+
+    .cta-title {
+      font-size: clamp(34px, 4.8vw, 80px);
+      font-weight: 800; letter-spacing: -0.048em; line-height: 1.15; margin-bottom: 32px;
+    }
+    .cta-title span { color: var(--beige); }
+
+    .cta-sub {
+      font-size: clamp(15px, 1.15vw, 20px);
+      color: var(--muted); line-height: 1.75; margin-bottom: 56px;
+    }
+    .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+    /* CTA 버튼 — 사랑의열매 초록 */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 16px 40px;
+      background: var(--green); color: #fff;
+      border: none; border-radius: 99px;
+      font-size: 16px; font-weight: 700; font-family: inherit;
+      letter-spacing: -0.02em; cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-2px); }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 16px 40px;
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border); border-radius: 99px;
+      font-size: 16px; font-weight: 600; font-family: inherit;
+      letter-spacing: -0.02em; cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.28); color: #fff; }
+
+    .cta-footnote {
+      margin-top: 52px; font-size: 14px; color: rgba(255,255,255,0.2);
+    }
+
+    /* ──────────────────────────────────────
+       RESPONSIVE
+    ────────────────────────────────────── */
+    @media (max-width:1200px){ section{ padding:100px 60px; } }
+    @media (max-width:900px){
+      .counters-grid{ grid-template-columns:1fr; }
+      .cat-grid{ grid-template-columns:repeat(2,1fr); }
+      section{ padding:80px 32px; }
+    }
+    @media (max-width:600px){
+      .cat-grid{ grid-template-columns:1fr; }
+      #side-panel{
+        top:auto; right:auto; bottom:-80vh;
+        left:0; width:100%; border-radius:16px 16px 0 0;
+        border:1px solid rgba(255,255,255,0.1);
+        transform:none;
+        transition:bottom 0.42s cubic-bezier(0.32,0.72,0,1);
+      }
+      #side-panel.open{ bottom:0; }
+    }
+  
+
+    /* ═══════════════════════════════════════════
+       MAIN NAV — fixed 56px
+    ═══════════════════════════════════════════ */
+    #main-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      height: 56px;
+      background: rgba(15,14,13,0.94);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; }
+    .nav-mark {
+      width: 30px; height: 30px; background: var(--green); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 800; color: #fff; flex-shrink: 0;
+      letter-spacing: -0.01em; text-align: center; line-height: 1.2;
+    }
+    .nav-name { font-size: 14px; font-weight: 700; letter-spacing: -0.025em; }
+    .nav-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .nav-tabs {
+      display: flex;
+      position: absolute; left: 50%; transform: translateX(-50%);
+    }
+    .nav-tab {
+      padding: 0 28px; height: 56px; line-height: 56px;
+      font-size: 14px; font-weight: 600; font-family: inherit;
+      color: var(--muted); background: none; border: none;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      cursor: pointer; letter-spacing: -0.025em;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.active { color: var(--text); border-bottom-color: var(--green); }
+    .nav-badge {
+      font-size: 11px; font-weight: 600; color: var(--beige);
+      border: 1px solid rgba(212,170,108,0.3);
+      border-radius: 99px; padding: 3px 14px; letter-spacing: 0.02em;
+    }
+
+    /* ═══════════════════════════════════════════
+       VIEW CONTAINERS
+    ═══════════════════════════════════════════ */
+    .view { display: none; }
+    .view-active { display: block; }
+    #view-report { padding-top: 56px; }
+    #view-dashboard { padding-top: 56px; }
+
+    /* ═══════════════════════════════════════════
+       DASHBOARD SCOPED — #view-dashboard
+    ═══════════════════════════════════════════ */
+    #view-dashboard .d-tab-bar {
+      display: flex; padding: 0 36px;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 56px; z-index: 100;
+      background: rgba(15,14,13,0.94);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    }
+    #view-dashboard .d-tab-btn {
+      padding: 14px 22px; font-size: 14px; font-weight: 600; font-family: inherit;
+      color: var(--muted); background: none; border: none;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      cursor: pointer; letter-spacing: -0.03em;
+      transition: color .2s, border-color .2s;
+    }
+    #view-dashboard .d-tab-btn:hover { color: var(--text); }
+    #view-dashboard .d-tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+
+    #view-dashboard .d-tab-panel { display: none; }
+    #view-dashboard .d-tab-panel.active { display: block; animation: dashFadeIn .3s ease; }
+    @keyframes dashFadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+    #view-dashboard .d-pad { padding: 28px 36px 72px; }
+
+    /* overview */
+    #view-dashboard .ov-header { margin-bottom: 24px; }
+    #view-dashboard .ov-header h1 { font-size: clamp(22px,1.9vw,32px); font-weight: 800; letter-spacing: -0.04em; margin-bottom: 8px; }
+    #view-dashboard .ov-header h1 em { font-style: normal; color: var(--green); }
+    #view-dashboard .ov-header p { font-size: clamp(13px,1.0vw,16px); color: var(--muted); }
+
+    /* stat grid */
+    #view-dashboard .stat-grid {
+      display: grid; grid-template-columns: repeat(5,1fr);
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 10px;
+      overflow: hidden; margin-bottom: 36px;
+    }
+    #view-dashboard .sc { background: var(--card); padding: 24px 20px; transition: background .2s; }
+    #view-dashboard .sc:hover { background: var(--card2); }
+    #view-dashboard .sc-lbl { font-size: clamp(10px,0.8vw,13px); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:12px; }
+    #view-dashboard .sc-val { font-size: clamp(28px,2.4vw,44px); font-weight: 800; letter-spacing: -0.05em; line-height: 1; }
+    #view-dashboard .sc-unit { font-size: clamp(14px,1.1vw,18px); font-weight: 600; color: var(--muted); }
+    #view-dashboard .sc-desc { font-size: clamp(12px,0.9vw,15px); color: var(--muted); margin-top: 10px; line-height: 1.7; }
+    #view-dashboard .sc-chip { display:inline-block; margin-top:8px; font-size:clamp(10px,0.75vw,12px); padding:3px 10px; border-radius:99px; font-weight:600; }
+    #view-dashboard .chip-r { background:rgba(200,23,46,.12); color:var(--red); }
+    #view-dashboard .chip-a { background:rgba(246,190,0,.12); color:#F6BE00; }
+    #view-dashboard .chip-g { background:rgba(74,140,66,.12); color:var(--green); }
+
+    /* section row */
+    #view-dashboard .sec-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:12px; flex-wrap:wrap; }
+    #view-dashboard .sec-row-title { font-size:clamp(15px,1.1vw,20px); font-weight:700; letter-spacing:-0.03em; }
+    #view-dashboard .ind-tabs { display:flex; gap:4px; flex-wrap:wrap; }
+    #view-dashboard .ind-btn {
+      padding:5px 12px; font-size:12px; font-weight:600; font-family:inherit;
+      background:none; border:1px solid var(--border); color:var(--muted);
+      border-radius:99px; cursor:pointer; transition:all .2s; letter-spacing:-0.02em;
+    }
+    #view-dashboard .ind-btn:hover { border-color:rgba(74,140,66,.4); color:var(--text); }
+    #view-dashboard .ind-btn.active { background:var(--green); border-color:var(--green); color:#fff; }
+
+    /* bar chart */
+    #view-dashboard .bar-chart { display:flex; flex-direction:column; gap:5px; margin-bottom:36px; }
+    #view-dashboard .b-row { display:grid; grid-template-columns:68px 1fr 48px; align-items:center; gap:8px; }
+    #view-dashboard .b-nm { font-size:clamp(12px,0.9vw,15px); font-weight:600; text-align:right; }
+    #view-dashboard .b-track { height:7px; background:rgba(255,255,255,.05); border-radius:99px; overflow:hidden; }
+    #view-dashboard .b-fill { height:100%; border-radius:99px; transition:width .55s cubic-bezier(.25,.46,.45,.94); }
+    #view-dashboard .b-vl { font-size:clamp(12px,0.9vw,15px); font-weight:600; color:var(--muted); white-space:nowrap; }
+    #view-dashboard .b-divider { display:flex; align-items:center; gap:10px; margin:12px 0 8px; }
+    #view-dashboard .b-div-line { flex:1; height:1px; background:var(--border); }
+    #view-dashboard .b-div-lbl { font-size:clamp(10px,0.75vw,12px); letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+    #view-dashboard .data-note { padding:16px 20px; border:1px solid var(--border); border-radius:8px; font-size:clamp(12px,0.9vw,14px); color:var(--muted); line-height:1.8; }
+    #view-dashboard .data-note strong { color:rgba(255,255,255,.45); font-weight:600; }
+
+    /* regional layout */
+    #view-dashboard .reg-layout { display:grid; grid-template-columns:1fr 420px; gap:20px; align-items:start; }
+    #view-dashboard .map-col { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:22px; position:sticky; top:116px; }
+    #view-dashboard .map-col-hd { font-size:clamp(14px,1.0vw,17px); font-weight:700; margin-bottom:5px; }
+    #view-dashboard .map-col-sub { font-size:clamp(12px,0.85vw,14px); color:var(--muted); margin-bottom:16px; }
+    #view-dashboard .map-col-sub span { color:var(--green); }
+    #view-dashboard .map-ind-row { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:14px; }
+    #view-dashboard #korea-svg { width:100%; display:block; cursor:default; overflow:visible; }
+    #view-dashboard .r-tile { cursor:pointer; }
+    #view-dashboard .r-tile path { transition:opacity .15s; }
+    #view-dashboard .r-tile:hover path { opacity:.82; }
+    #view-dashboard .map-legend { display:flex; align-items:center; gap:8px; margin-top:14px; }
+    #view-dashboard .leg-bar { flex:1; height:7px; border-radius:99px; }
+    #view-dashboard .leg-lbl { font-size:clamp(11px,0.8vw,13px); color:var(--muted); }
+
+    /* tooltip (global — works for both views) */
+    .map-tooltip {
+      position:fixed; z-index:600; pointer-events:none;
+      background:rgba(25,24,22,0.97); border:1px solid rgba(255,255,255,0.12);
+      border-radius:8px; padding:8px 12px; font-size:12px;
+      backdrop-filter:blur(8px); opacity:0; transition:opacity .15s; white-space:nowrap;
+    }
+    .map-tooltip.show { opacity:1; }
+    .tt-name { font-weight:700; margin-bottom:2px; }
+    .tt-val  { color:var(--green); }
+
+    /* detail col */
+    #view-dashboard .detail-col { display:flex; flex-direction:column; gap:0; position:sticky; top:116px; }
+    #view-dashboard .rd-top { background:var(--card); border:1px solid var(--border); border-radius:12px 12px 0 0; padding:28px 26px 22px; }
+    #view-dashboard .rd-eyebrow { font-size:clamp(11px,0.8vw,13px); letter-spacing:.15em; text-transform:uppercase; color:var(--green); font-weight:600; margin-bottom:10px; }
+    #view-dashboard .rd-name { font-size:clamp(28px,2.2vw,38px); font-weight:800; letter-spacing:-0.045em; margin-bottom:5px; }
+    #view-dashboard .rd-meta { font-size:clamp(13px,0.9vw,15px); color:var(--muted); }
+    #view-dashboard .rd-divider { height:1px; background:var(--border); margin:16px 0; }
+    #view-dashboard .ind-cards { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); border:1px solid var(--border); overflow:hidden; }
+    #view-dashboard .ic { background:var(--card); padding:20px 18px; transition:background .2s; }
+    #view-dashboard .ic:hover { background:var(--card2); }
+    #view-dashboard .ic-lbl { font-size:clamp(11px,0.8vw,13px); color:var(--muted); margin-bottom:10px; letter-spacing:.02em; }
+    #view-dashboard .ic-val { font-size:clamp(24px,1.9vw,34px); font-weight:800; letter-spacing:-0.04em; line-height:1; }
+    #view-dashboard .ic-unit { font-size:clamp(13px,0.9vw,16px); font-weight:600; }
+    #view-dashboard .ic-bar-wrap { height:5px; background:rgba(255,255,255,.06); border-radius:99px; margin-top:10px; overflow:hidden; }
+    #view-dashboard .ic-bar { height:100%; border-radius:99px; transition:width .5s ease; }
+    #view-dashboard .ic-rank { font-size:clamp(11px,0.8vw,13px); color:var(--muted); margin-top:6px; }
+    #view-dashboard .ic-avg { display:flex; align-items:center; gap:6px; margin-top:4px; }
+    #view-dashboard .ic-avg-lbl { font-size:clamp(10px,0.75vw,12px); color:var(--muted); white-space:nowrap; }
+    #view-dashboard .ic-avg-track { flex:1; height:3px; background:rgba(255,255,255,.06); border-radius:99px; position:relative; overflow:visible; }
+    #view-dashboard .ic-avg-fill { height:100%; background:rgba(255,255,255,.12); position:absolute; top:0; left:0; transition:width .5s; }
+    #view-dashboard .ic-avg-dot { width:6px; height:6px; border-radius:50%; position:absolute; top:-1.5px; transform:translateX(-50%); background:rgba(255,255,255,.35); transition:left .5s; }
+    #view-dashboard .rd-issues-wrap { background:var(--card); border:1px solid var(--border); border-radius:0 0 12px 12px; padding:16px 20px; }
+    #view-dashboard .rd-issues-lbl { font-size:clamp(11px,0.8vw,13px); color:var(--muted); margin-bottom:12px; letter-spacing:.08em; text-transform:uppercase; }
+    #view-dashboard .rd-tags { display:flex; flex-wrap:wrap; gap:5px; }
+    #view-dashboard .rd-tag { padding:5px 13px; border:1px solid var(--border); border-radius:99px; font-size:clamp(12px,0.85vw,14px); color:rgba(255,255,255,.4); }
+    #view-dashboard .rd-tag.hot { border-color:rgba(200,23,46,.35); color:var(--red); background:rgba(200,23,46,.07); }
+    #view-dashboard .rd-empty { background:var(--card); border:1px solid var(--border); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:360px; text-align:center; padding:40px; gap:10px; }
+    #view-dashboard .rd-empty-ico { width:44px; height:44px; border-radius:10px; background:var(--green-dim); display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:6px; }
+    #view-dashboard .rd-empty-t { font-size:clamp(15px,1.1vw,18px); font-weight:700; }
+    #view-dashboard .rd-empty-s { font-size:clamp(13px,0.9vw,15px); color:var(--muted); line-height:1.75; }
+    #view-dashboard .geo-badge {
+      display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:600;
+      color:rgba(74,140,66,.9); background:rgba(74,140,66,.08);
+      border:1px solid rgba(74,140,66,.25); border-radius:4px; padding:2px 7px;
+      margin-left:6px; vertical-align:middle; letter-spacing:0;
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:1080px){ #view-dashboard .reg-layout{grid-template-columns:1fr} #view-dashboard .map-col,#view-dashboard .detail-col{position:static} }
+    @media(max-width:768px){ #view-dashboard .stat-grid{grid-template-columns:repeat(2,1fr)} #view-dashboard .d-pad{padding:20px 20px 48px} #view-dashboard .d-tab-bar{padding-left:20px;padding-right:20px} }
+    @media(max-width:480px){ #view-dashboard .stat-grid{grid-template-columns:1fr} #view-dashboard .ind-cards{grid-template-columns:1fr} }
+
+</style>
+</head>
+<body>
+
+<!-- ── GLOBAL FIXED ELEMENTS ─────────────── -->
+<div id="progress-bar"></div>
+<canvas id="particle-canvas"></canvas>
+<div class="map-tooltip" id="map-tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-val"  id="tt-val"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN NAV
+═══════════════════════════════════════════ -->
+<nav id="main-nav">
+  <div class="nav-brand">
+    <div class="nav-mark">나눔</div>
+    <div>
+      <div class="nav-name">사회이슈분석 2026</div>
+      <div class="nav-sub">나눔문화연구소</div>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-view="report"    onclick="switchView('report')">사회이슈분석</button>
+    <button class="nav-tab"        data-view="dashboard" onclick="switchView('dashboard')">지역 대시보드</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 1 · 사회이슈 리포트
+═══════════════════════════════════════════ -->
+<div id="view-report" class="view view-active">
+<!-- ══════════════════════════════════════
+     SECTION 1 · HERO
+     조직의 미션을 선언 — 긍정, 행동 지향
+══════════════════════════════════════ -->
+<section id="s-hero">
+  <div style="text-align:center; max-width:1100px;">
+    <p class="hero-eyebrow" id="hero-eyebrow">사회복지공동모금회 나눔문화연구소 · 사회이슈분석 2026</p>
+    <span class="hero-badge" id="hero-badge">사회이슈분석 2026</span>
+
+    <div class="hero-headline" id="hero-headline" style="margin-top:60px;">
+      <span class="hero-line">
+        <span class="hero-word" style="transition-delay:0.3s">나눔에</span>&thinsp;
+        <span class="hero-word" style="transition-delay:0.55s">대한</span>&thinsp;
+        <span class="hero-word" style="transition-delay:0.8s">모든</span>&thinsp;
+        <span class="hero-word green" style="transition-delay:1.05s">것.</span>
+      </span>
+    </div>
+
+    <p class="hero-subtitle" id="hero-subtitle">나눔연구소가 분석한 대한민국 나눔에 대한 이야기</p>
+
+    <p class="hero-sub" id="hero-sub">
+      14개 분야 · 100+ 핵심 이슈 · 전국 17개 시도<br>
+      한 해를 돌아보고, 더 나은 나눔의 방향을 기록합니다
+    </p>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-hint-line"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 2 · MISSION STATEMENT
+     전체 텍스트 즉시 표시 + 키워드 형광펜 마커
+══════════════════════════════════════ -->
+<section id="s-mission">
+  <div class="mission-wrap">
+    <p class="label fade-up">우리가 하는 일</p>
+    <p class="mission-text fade-up" id="mission-text">
+      사회복지공동모금회는 <span class="k-word" data-i="0">나눔으로 모인 기부금</span>으로<br>
+      <span class="k-word" data-i="1">가장 취약한 곳</span>을 지원합니다.<br>
+      지원이 실제로 필요한 곳에 닿으려면<br>
+      <span class="k-word" data-i="2">정확한 사회진단</span>이 먼저입니다.<br>
+      <span class="k-word" data-i="3">사회이슈분석</span>은 그 출발점—<br>
+      <span class="k-word" data-i="4">현장의 언어</span>로 기록한 한해의 복지 지도입니다.<br>
+      <span class="mission-closing">나눔의 지도로 세상의 나눔이 더 나은 길로 나아갈 수 있게 만듭니다.</span>
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 3 · COUNTERS
+══════════════════════════════════════ -->
+<section id="s-counters">
+  <div class="inner">
+    <div class="sec-header fade-up">
+      <p class="label">이번 연구의 규모</p>
+      <h2 class="sec-title">숫자로 보는 <em>사회이슈분석 2026</em></h2>
+    </div>
+  </div>
+  <div class="counters-grid">
+    <div class="c-card" data-target="14" data-suffix="개">
+      <div class="c-num"><span class="cv">0</span><span class="c-unit">개</span></div>
+      <div class="c-label">연구 분야</div>
+      <div class="c-desc">영유아·아동부터 이주배경인까지<br>8개 대상자 + 6개 통합주제</div>
+    </div>
+    <div class="c-card" data-target="100" data-suffix="+" data-is-plus="true">
+      <div class="c-num"><span class="cv">0</span><span class="c-unit">+</span></div>
+      <div class="c-label">핵심 이슈</div>
+      <div class="c-desc">14명의 전문 연구자가 분석한<br>대한민국 사회의 주요 현안들</div>
+    </div>
+    <div class="c-card" data-target="17" data-suffix="개">
+      <div class="c-num"><span class="cv">0</span><span class="c-unit">개</span></div>
+      <div class="c-label">시·도 지역 통계</div>
+      <div class="c-desc">전국 17개 광역자치단체<br>지역별 사회복지 현황 데이터</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 4 · CATEGORIES
+══════════════════════════════════════ -->
+<section id="s-categories">
+  <div class="inner">
+    <div class="sec-header fade-up">
+      <p class="label">연구 범위</p>
+      <h2 class="sec-title"><em>14개 분야</em> 전방위 분석</h2>
+    </div>
+  </div>
+  <div class="cat-grid" id="cat-grid">
+    <div class="cat-card" data-d="0">
+      <div class="cat-kind target">대상자별</div>
+      <div class="cat-icon">👶</div>
+      <div class="cat-name">영유아·아동</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">보육 격차 · 아동 빈곤<br>학대 예방 · 발달 지원</div>
+    </div>
+    <div class="cat-card" data-d="1">
+      <div class="cat-kind target">대상자별</div>
+      <div class="cat-icon">🎒</div>
+      <div class="cat-name">청소년</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">학교 밖 청소년 · 정신건강<br>디지털 위험 · 진로 불안</div>
+    </div>
+    <div class="cat-card" data-d="2">
+      <div class="cat-kind target">대상자별</div>
+      <div class="cat-icon">🎓</div>
+      <div class="cat-name">청년</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">주거 불안 · 취업 절벽<br>고독사 위험 · 부채 증가</div>
+    </div>
+    <div class="cat-card" data-d="3">
+      <div class="cat-kind target">대상자별</div>
+      <div class="cat-icon">💼</div>
+      <div class="cat-name">중장년</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">중년 실직 · 경력 단절<br>돌봄 부담 · 은퇴 준비</div>
+    </div>
+    <div class="cat-card" data-d="4">
+      <div class="cat-kind target">대상자별</div>
+      <div class="cat-icon">🏡</div>
+      <div class="cat-name">노인</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">독거노인 · 치매 돌봄<br>노인 빈곤 · 디지털 소외</div>
+    </div>
+    <div class="cat-card" data-d="5">
+      <div class="cat-kind target">대상자별</div>
+      <div class="cat-icon">♿</div>
+      <div class="cat-name">장애인</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">탈시설화 · 자립 지원<br>중증 돌봄 · 고령 장애</div>
+    </div>
+    <div class="cat-card" data-d="6">
+      <div class="cat-kind target">대상자별</div>
+      <div class="cat-icon">👩‍👧</div>
+      <div class="cat-name">여성·가족</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">한부모 가족 · 젠더 폭력<br>저출생 위기 · 돌봄 노동</div>
+    </div>
+    <div class="cat-card" data-d="7">
+      <div class="cat-kind target">대상자별</div>
+      <div class="cat-icon">🌏</div>
+      <div class="cat-name">이주배경인</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">다문화 가정 · 이주 노동<br>난민 지원 · 문화 적응</div>
+    </div>
+    <div class="cat-card" data-d="8">
+      <div class="cat-kind theme">통합주제</div>
+      <div class="cat-icon">🏘️</div>
+      <div class="cat-name">지역사회</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">인구 소멸 · 지방 소외<br>커뮤니티 케어 · 빈집</div>
+    </div>
+    <div class="cat-card" data-d="9">
+      <div class="cat-kind theme">통합주제</div>
+      <div class="cat-icon">🏠</div>
+      <div class="cat-name">주거복지</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">비주거시설 거주 · 쪽방<br>임대주택 부족 · 홈리스</div>
+    </div>
+    <div class="cat-card" data-d="10">
+      <div class="cat-kind theme">통합주제</div>
+      <div class="cat-icon">🏥</div>
+      <div class="cat-name">건강·돌봄</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">의료 사각지대 · 간병 부담<br>정신건강 위기 · 지역 의료</div>
+    </div>
+    <div class="cat-card" data-d="11">
+      <div class="cat-kind theme">통합주제</div>
+      <div class="cat-icon">🔗</div>
+      <div class="cat-name">사회적 고립</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">고독사 · 은둔형 외톨이<br>1인 가구 급증 · 관계 단절</div>
+    </div>
+    <div class="cat-card" data-d="12">
+      <div class="cat-kind theme">통합주제</div>
+      <div class="cat-icon">💻</div>
+      <div class="cat-name">디지털 전환</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">디지털 격차 · AI 위험<br>플랫폼 노동 · 정보 소외</div>
+    </div>
+    <div class="cat-card" data-d="13">
+      <div class="cat-kind theme">통합주제</div>
+      <div class="cat-icon">🌿</div>
+      <div class="cat-name">기후·재난</div>
+      <div class="cat-rule"></div>
+      <div class="cat-tags">폭염 취약계층 · 기후 불평등<br>재난 안전망 · 에너지 빈곤</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 5 · HIGHLIGHT PASSAGE
+══════════════════════════════════════ -->
+<section id="s-highlights">
+  <div class="inner">
+    <div class="fade-up" style="margin-bottom:60px;">
+      <p class="label">주요 이슈 심층 분석</p>
+      <h2 class="sec-title">클릭해서 <em>더 알아보기</em>
+        <span class="hl-hint">클릭 가능</span>
+      </h2>
+    </div>
+    <p class="passage fade-up">
+      대한민국 인구의 절반 이상이<br>
+      <span class="hl blue" data-key="isolation">사회적 고립</span>을 경험하고 있습니다.<br>
+      전체 가구의 34.5%가 1인 가구이며,<br>
+      매년 <span class="hl warm" data-key="lonely-death">3,000명 이상</span>이 홀로 생을 마감합니다.<br><br>
+      <span class="hl blue" data-key="digital">디지털 전환</span>은 편리함을 가져왔지만,<br>
+      고령층·장애인·저소득층은<br>
+      <span class="hl warm" data-key="digital-gap">디지털 격차</span>로 인해<br>
+      서비스 접근 자체가 막혀 있습니다.<br><br>
+      <span class="hl green" data-key="climate">기후 재난</span>의 최전선에는<br>
+      언제나 <span class="hl green" data-key="climate-poor">가장 취약한 사람들</span>이 있습니다.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SECTION 6 · CTA
+══════════════════════════════════════ -->
+<section id="s-cta">
+  <div class="fade-up" style="text-align:center;">
+    <p class="label" style="margin-bottom:32px;">사회이슈분석 2026</p>
+    <h2 class="cta-title">더 정확하게.<br><span>더 깊이.</span><br>더 현장에 가깝게.</h2>
+    <p class="cta-sub">
+      14개 분야, 100+개 이슈, 17개 시도 데이터로 그려낸<br>
+      대한민국 복지 현실의 가장 완전한 지도
+    </p>
+    <div class="cta-row">
+      <button class="btn-primary" onclick="alert('보고서 발간 예정: 2026년 9월')">발간 예정 알림 받기 →</button>
+      <button class="btn-ghost" onclick="alert('파트너십 문의: research@chest.or.kr')">연구 파트너십 문의</button>
+    </div>
+    <p class="cta-footnote">© 2026 사회복지공동모금회 나눔문화연구소 · 사회이슈분석은 2년마다 발간됩니다</p>
+  </div>
+</section>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     VIEW 2 · 지역 대시보드
+═══════════════════════════════════════════ -->
+<div id="view-dashboard" class="view">
+<div class="d-tab-bar">
+  <button class="d-tab-btn active" onclick="switchDashTab('national',this)">전국 현황</button>
+  <button class="d-tab-btn" onclick="switchDashTab('regional',this)">시도별 탐색</button>
+</div>
+
+<!-- ═════════════════════════════
+     TAB 1 · 전국 현황
+═════════════════════════════ -->
+<div id="dtab-national" class="d-tab-panel active d-pad">
+  <div class="ov-header">
+    <h1>전국 복지현안 <em>총괄 분석</em></h1>
+    <p>17개 시도 주요 복지지표 현황 · 2024년 기준 · 샘플 데이터 (실제 보고서 출간 시 확정)</p>
+  </div>
+  <div class="stat-grid">
+    <div class="sc">
+      <div class="sc-lbl">고령화율 전국 평균</div>
+      <div class="sc-val" style="color:var(--warm)">20.6<span class="sc-unit">%</span></div>
+      <div class="sc-desc">65세 이상 인구 비율<br>전남 28.7% ~ 세종 9.8%</div>
+      <span class="sc-chip chip-r">전년 +0.9%p</span>
+    </div>
+    <div class="sc">
+      <div class="sc-lbl">1인 가구 비율</div>
+      <div class="sc-val" style="color:var(--blue)">33.4<span class="sc-unit">%</span></div>
+      <div class="sc-desc">전체 가구 중 1인 가구<br>강원 36.2% ~ 세종 24.3%</div>
+      <span class="sc-chip chip-r">전년 +1.2%p</span>
+    </div>
+    <div class="sc">
+      <div class="sc-lbl">기초생활수급 비율</div>
+      <div class="sc-val" style="color:var(--amber)">5.1<span class="sc-unit">%</span></div>
+      <div class="sc-desc">기초수급자 / 총인구<br>전남 8.1% ~ 세종 2.1%</div>
+      <span class="sc-chip chip-a">지역 격차 3.9배</span>
+    </div>
+    <div class="sc">
+      <div class="sc-lbl">청년 인구 비율</div>
+      <div class="sc-val" style="color:var(--green)">14.6<span class="sc-unit">%</span></div>
+      <div class="sc-desc">19~34세 / 총인구<br>세종 20.5% ~ 전남 11.8%</div>
+      <span class="sc-chip chip-g">세종 집중 두드러짐</span>
+    </div>
+    <div class="sc">
+      <div class="sc-lbl">복지예산 비율</div>
+      <div class="sc-val" style="color:var(--purple)">4.3<span class="sc-unit">%</span></div>
+      <div class="sc-desc">총예산 대비 사회복지 예산<br>전남 8.1% ~ 세종 2.1%</div>
+      <span class="sc-chip chip-a">투자 확대 필요</span>
+    </div>
+  </div>
+
+  <div class="sec-row">
+    <h2 class="sec-title">지역별 비교 — 상위·하위 5개 지역</h2>
+    <div class="ind-tabs">
+      <button class="ind-btn active" onclick="switchBarInd('aging',this)">고령화율</button>
+      <button class="ind-btn" onclick="switchBarInd('single',this)">1인가구</button>
+      <button class="ind-btn" onclick="switchBarInd('welfare',this)">기초수급</button>
+      <button class="ind-btn" onclick="switchBarInd('youth',this)">청년비율</button>
+    </div>
+  </div>
+  <div id="bar-wrap" class="bar-chart"></div>
+  <div class="data-note">
+    <strong>데이터 안내</strong> · 사회이슈분석 2026 연구(나눔문화연구소)의 사회지표 분석 프로토타입입니다. 고령화율: 주민등록통계(2024), 1인가구: 인구총조사(2023), 기초수급: 사회복지통계(2024), 청년비율: 주민등록통계(2024). 실제 보고서 출간(2026년 9월) 시 확정 수치로 업데이트됩니다.
+  </div>
+</div>
+
+<!-- ═════════════════════════════
+     TAB 2 · 시도별 탐색
+═════════════════════════════ -->
+<div id="dtab-regional" class="d-tab-panel d-pad">
+  <div class="ov-header">
+    <h1>시도별 복지현안 <em>탐색</em></h1>
+    <p>지도에서 지역을 클릭하면 상세 복지지표를 확인할 수 있습니다 · 색상 농도 = 선택 지표 수치</p>
+  </div>
+  <div class="reg-layout">
+    <!-- MAP -->
+    <div class="map-col">
+      <div class="map-col-hd">대한민국 17개 시도 <span class="geo-badge">SVG 내장</span></div>
+      <div class="map-col-sub">실제 행정구역 경계 · <span>사전 계산 SVG</span> 렌더링 · 클릭으로 선택</div>
+      <div class="map-ind-row">
+        <button class="ind-btn active" onclick="switchMapInd('aging',this)">고령화율</button>
+        <button class="ind-btn" onclick="switchMapInd('single',this)">1인가구</button>
+        <button class="ind-btn" onclick="switchMapInd('welfare',this)">기초수급</button>
+        <button class="ind-btn" onclick="switchMapInd('youth',this)">청년비율</button>
+      </div>
+      <svg id="korea-svg" viewBox="0 0 370 510" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="map-legend">
+        <span class="leg-lbl">낮음</span>
+        <div class="leg-bar" id="leg-bar"></div>
+        <span class="leg-lbl">높음</span>
+      </div>
+    </div>
+    <!-- DETAIL -->
+    <div class="detail-col" id="detail-col">
+      <div class="rd-empty">
+        <div class="rd-empty-ico">🗺</div>
+        <div class="rd-empty-t">시도를 선택하세요</div>
+        <div class="rd-empty-s">왼쪽 지도에서 원하는 시도를<br>클릭하면 복지지표를 확인할 수 있습니다</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SIDE PANEL (공통 — report view 에서 활성화) -->
+<div id="side-panel">
+  <div class="panel-close" id="panel-close">✕</div>
+  <div id="panel-body"></div>
+</div>
+
+<script>
+
+/* ─── VIEW SWITCHING ─────────────────────── */
+var dashboardInitialized = false;
+function switchView(view) {
+  document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('view-active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('view-' + view).classList.add('view-active');
+  document.querySelector('.nav-tab[data-view="' + view + '"]').classList.add('active');
+  window.scrollTo(0, 0);
+  var pb  = document.getElementById('progress-bar');
+  var cvs = document.getElementById('particle-canvas');
+  if (view === 'dashboard') {
+    if(pb)  pb.style.opacity  = '0';
+    if(cvs) cvs.style.opacity = '0';
+    if (!dashboardInitialized) {
+      renderBarChart('aging');
+      dashboardInitialized = true;
+    }
+  } else {
+    if(pb)  pb.style.opacity  = '1';
+    if(cvs) cvs.style.opacity = '0.24';
+  }
+}
+
+
+/* ─── DATA ─────────────────────────────── */
+const DATA = {
+  isolation: {
+    color: '#7BAAE8', bg: 'rgba(123,170,232,0.07)',
+    eyebrow: '통합주제 · 사회적 고립',
+    title: '사회적 고립',
+    statNum: '34.5%', statLabel: '1인 가구 비율 (2024년 기준)',
+    body: '2024년 기준 전체 가구의 34.5%가 1인 가구입니다. OECD 국가 중 사회적 고립 경험률이 가장 높은 축에 속하며, 특히 청년층(19–34세)과 노인층(65+)에서 집중됩니다. 고립은 건강 악화, 경제적 빈곤, 심리적 위기로 이어지는 복합 취약성을 만들어냅니다.',
+    quote: '"사회적 고립은 개인의 문제가 아닙니다. 공동체를 지탱하는 연결망이 무너지고 있다는 사회 구조의 신호입니다."',
+    author: '— 연구책임자 (사회복지학 전공)',
+    tags: ['1인 가구', '고독사', '은둔 청년', '노인 고립', '관계 단절']
+  },
+  'lonely-death': {
+    color: '#E07B4A', bg: 'rgba(224,123,74,0.07)',
+    eyebrow: '통합주제 · 사회적 고립',
+    title: '고독사',
+    statNum: '3,378명', statLabel: '2023년 고독사 공식 사망자 수',
+    body: '2023년 공식 집계된 고독사는 3,378명이지만, 미집계 사례를 포함하면 실제 수치는 훨씬 높을 것으로 추정됩니다. 남성(76.5%)이 여성보다 4배 많으며, 50–60대 중장년 남성이 가장 취약한 집단입니다. 고독사는 사회 안전망의 공백을 드러내는 가장 극단적인 지표입니다.',
+    quote: '"고독사는 예방 가능합니다. 지역사회의 촘촘한 관계망이 가장 강력한 보호막입니다."',
+    author: '— 보건복지부 고독사예방팀',
+    tags: ['고독사 통계', '중장년 남성', '복지 사각지대', '예방 정책', '주민 돌봄']
+  },
+  digital: {
+    color: '#7BAAE8', bg: 'rgba(123,170,232,0.07)',
+    eyebrow: '통합주제 · 디지털 전환',
+    title: '디지털 전환과 복지',
+    statNum: '680만명', statLabel: '디지털 소외 취약계층 추정 인구',
+    body: '행정·의료·금융·교통 서비스가 디지털 채널로 전환되면서, 고령층·장애인·저소득층·이주민 등 약 680만 명이 기본 서비스 접근에 어려움을 겪고 있습니다. 디지털 전환은 효율을 높이지만, 설계 단계에서 포용성을 고려하지 않으면 새로운 불평등을 만들어냅니다.',
+    quote: '"모바일로만 가능한 서비스가 늘수록, 스마트폰 없는 어르신들은 기본 권리에서 배제됩니다."',
+    author: '— 디지털포용위원회 보고서',
+    tags: ['디지털 격차', '고령층 배제', 'AI 위험', '비대면 서비스', '포용 설계']
+  },
+  'digital-gap': {
+    color: '#E07B4A', bg: 'rgba(224,123,74,0.07)',
+    eyebrow: '통합주제 · 디지털 전환',
+    title: '디지털 격차',
+    statNum: '58.4%', statLabel: '70대 이상 인터넷 이용률 (2024년)',
+    body: '70대 이상의 인터넷 이용률은 58.4%로 전체 평균(92.8%)보다 34.4%p 낮습니다. 키오스크 사용 어려움은 식당·병원·대중교통 이용을 가로막고, 디지털 격차는 정보 격차 → 복지 격차 → 건강 격차로 이어지는 복합 불평등을 만듭니다.',
+    quote: '"디지털 격차는 정보 격차에서 복지 격차, 건강 격차로 연결되는 복합 불평등입니다."',
+    author: '— 정보통신정책연구원 (KISDI) 2024',
+    tags: ['노인 디지털', '키오스크 장벽', '인터넷 이용률', '디지털 교육', '접근성']
+  },
+  climate: {
+    color: '#52A874', bg: 'rgba(82,168,116,0.07)',
+    eyebrow: '통합주제 · 기후·재난',
+    title: '기후 재난과 취약계층',
+    statNum: '2,296명', statLabel: '2023년 폭염 온열질환자 수',
+    body: '기후변화로 인한 극단적 기상 현상이 증가하면서, 냉방 시설이 없는 고시원·쪽방 거주자, 야외 근로자, 고령 농촌 주민이 가장 큰 위협에 노출됩니다. 기후 재난은 이미 취약한 이들에게 더 가혹하게 찾아오는 구조적 불평등입니다.',
+    quote: '"기후위기는 모두에게 동일하게 오지 않습니다. 이미 취약한 이들에게 더 가혹하게 찾아옵니다."',
+    author: '— 기후정의연구소',
+    tags: ['폭염 취약', '에너지 빈곤', '기후 불평등', '재난 취약계층', '적응 지원']
+  },
+  'climate-poor': {
+    color: '#52A874', bg: 'rgba(82,168,116,0.07)',
+    eyebrow: '통합주제 · 기후·재난',
+    title: '에너지 빈곤',
+    statNum: '8.9%', statLabel: '에너지 빈곤 가구 비율 (2023년)',
+    body: '소득의 10% 이상을 에너지 비용으로 지출하는 에너지 빈곤 가구가 전체의 8.9%에 달합니다. 여름 냉방·겨울 난방을 포기하는 가구는 폭염·한파 시 생명 위협에 직접 노출됩니다. 에너지 복지는 더 이상 선택이 아닌 필수 안전망입니다.',
+    quote: '"냉방은 사치가 아닙니다. 폭염 시대의 의료·복지 서비스입니다."',
+    author: '— 에너지복지협의회',
+    tags: ['에너지 빈곤', '냉난방 포기', '1인 노인 가구', '기초생활수급자', '기후 정의']
+  }
+};
+
+/* ─── SCROLL PROGRESS ───────────────────── */
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}, { passive: true });
+
+/* ─── PARTICLES (웜 그레이 계열) ─────────── */
+(function(){
+  const cvs = document.getElementById('particle-canvas');
+  const ctx = cvs.getContext('2d');
+  let W, H, pts = [];
+  const N = 38;
+  function resize(){ W = cvs.width = window.innerWidth; H = cvs.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  for(let i=0;i<N;i++) pts.push({
+    x: Math.random()*window.innerWidth, y: Math.random()*window.innerHeight,
+    vx: (Math.random()-.5)*.2, vy: (Math.random()-.5)*.2,
+    r: Math.random()*1.5+.4, a: Math.random()*.3+.07
+  });
+  (function loop(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<N;i++) for(let j=i+1;j<N;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<110){
+        ctx.beginPath();
+        ctx.strokeStyle=`rgba(165,185,155,${.055*(1-d/110)})`;
+        ctx.lineWidth=.5;
+        ctx.moveTo(pts[i].x,pts[i].y);
+        ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.stroke();
+      }
+    }
+    pts.forEach(p=>{
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(165,185,155,${p.a})`;
+      ctx.fill();
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>W) p.vx*=-1;
+      if(p.y<0||p.y>H) p.vy*=-1;
+    });
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ─── HERO WORDS ────────────────────────── */
+(function(){
+  document.getElementById('hero-eyebrow').classList.add('visible');
+  document.getElementById('hero-badge').classList.add('visible');
+  document.querySelectorAll('.hero-word').forEach(w=>{
+    const delay = parseFloat(w.style.transitionDelay||'0')*1000;
+    setTimeout(()=>w.classList.add('visible'), delay);
+  });
+  setTimeout(()=>document.getElementById('hero-subtitle').classList.add('visible'), 1300);
+  setTimeout(()=>document.getElementById('hero-sub').classList.add('visible'), 1900);
+})();
+
+/* ─── MISSION KEYWORD MARKER ───────────────
+   섹션이 뷰포트에 40% 들어오면 키워드마다
+   250ms 간격으로 .drawn 추가 → 형광펜 draw-in
+─────────────────────────────────────────── */
+(function(){
+  const section = document.getElementById('s-mission');
+  let fired = false;
+  const obs = new IntersectionObserver(entries => {
+    if(entries[0].isIntersecting && !fired){
+      fired = true;
+      document.querySelectorAll('.k-word').forEach((el, i) => {
+        setTimeout(() => el.classList.add('drawn'), 500 + i * 280);
+      });
+      obs.disconnect();
+    }
+  }, { threshold: 0.4 });
+  obs.observe(section);
+})();
+
+/* ─── INTERSECTION FADE-UP ──────────────── */
+const fuObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-up').forEach(el => fuObs.observe(el));
+
+/* ─── COUNTERS ──────────────────────────── */
+(function(){
+  const cards = document.querySelectorAll('.c-card');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(!entry.isIntersecting) return;
+      const card = entry.target;
+      card.classList.add('visible');
+      obs.unobserve(card);
+      const target = +card.dataset.target;
+      const isPlus = card.dataset.isPlus === 'true';
+      const valEl  = card.querySelector('.cv');
+      const unitEl = card.querySelector('.c-unit');
+      const t0 = performance.now(), dur = 1400;
+      (function tick(now){
+        const p = Math.min((now-t0)/dur, 1);
+        const e = 1-Math.pow(1-p,3);
+        valEl.textContent = Math.round(e*target);
+        if(isPlus && p>=1) unitEl.textContent = '+';
+        if(p<1) requestAnimationFrame(tick);
+      })(t0);
+    });
+  }, { threshold: 0.25 });
+  cards.forEach(c => obs.observe(c));
+})();
+
+/* ─── CATEGORY STAGGER ──────────────────── */
+(function(){
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(!e.isIntersecting) return;
+      setTimeout(()=>e.target.classList.add('visible'), +e.target.dataset.d * 55);
+      obs.unobserve(e.target);
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.cat-card').forEach(c => obs.observe(c));
+})();
+
+/* ─── SIDE PANEL ────────────────────────── */
+function openPanel(key){
+  const d = DATA[key]; if(!d) return;
+  document.getElementById('panel-body').innerHTML = `
+    <p class="p-eyebrow" style="color:${d.color}">${d.eyebrow}</p>
+    <h3 class="p-title">${d.title}</h3>
+    <div class="p-stat-num" style="color:${d.color}">${d.statNum}</div>
+    <div class="p-stat-label">${d.statLabel}</div>
+    <div class="p-rule"></div>
+    <p class="p-body">${d.body}</p>
+    <div class="p-quote" style="border-left:2px solid ${d.color};background:${d.bg}">
+      <p>${d.quote}</p><cite>${d.author}</cite>
+    </div>
+    <div class="p-tags">${d.tags.map(t=>`<span class="p-tag">${t}</span>`).join('')}</div>`;
+  document.querySelectorAll('.hl').forEach(el=>el.classList.remove('active'));
+  const activeEl = document.querySelector(`.hl[data-key="${key}"]`);
+  if(activeEl) activeEl.classList.add('active');
+  document.getElementById('side-panel').classList.add('open');
+}
+function closePanel(){
+  document.getElementById('side-panel').classList.remove('open');
+  document.querySelectorAll('.hl').forEach(el=>el.classList.remove('active'));
+}
+document.querySelectorAll('.hl').forEach(el=>{
+  el.addEventListener('click', e=>{ e.stopPropagation(); openPanel(el.dataset.key); });
+});
+document.getElementById('panel-close').addEventListener('click', closePanel);
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#side-panel') && !e.target.closest('.hl')) closePanel();
+});
+
+
+/* ══════════════════════════════
+   REGION DATA
+══════════════════════════════ */
+const RGS=[
+  {id:'gyeonggi', name:'경기',  pop:'1,357만', aging:15.1,single:28.2,welfare:3.0,youth:16.3, issues:['지역 내 격차 심화','외국인 노동자 밀집','노인 급증'],hot:['지역 내 격차 심화']},
+  {id:'seoul',    name:'서울',  pop:'940만',   aging:16.8,single:34.9,welfare:3.2,youth:16.8, issues:['청년 주거 불안','1인 가구 급증','고령화 가속'],hot:['청년 주거 불안']},
+  {id:'incheon',  name:'인천',  pop:'297만',   aging:16.9,single:29.8,welfare:3.5,youth:15.9, issues:['이주배경 가정 집중','주거 불안','산업 노동자 복지'],hot:['이주배경 가정 집중']},
+  {id:'gangwon',  name:'강원',  pop:'151만',   aging:24.8,single:36.2,welfare:6.2,youth:12.8, issues:['농촌 고령화','의료 취약지','인구 소멸 위험'],hot:['농촌 고령화','인구 소멸 위험']},
+  {id:'chungbuk', name:'충북',  pop:'158만',   aging:22.1,single:31.8,welfare:5.1,youth:13.5, issues:['농촌 고령화','청년 유출','복지 인프라 부족'],hot:['농촌 고령화']},
+  {id:'sejong',   name:'세종',  pop:'39만',    aging: 9.8,single:24.3,welfare:2.1,youth:20.5, issues:['보육 수요 급증','인프라 부족','급격한 유입'],hot:['보육 수요 급증']},
+  {id:'daejeon',  name:'대전',  pop:'144만',   aging:16.9,single:33.8,welfare:3.8,youth:16.5, issues:['1인 가구 증가','청년 집중','노인 돌봄'],hot:[]},
+  {id:'chungnam', name:'충남',  pop:'210만',   aging:21.9,single:29.8,welfare:4.9,youth:13.8, issues:['이주 노동자 밀집','농촌 고령화','돌봄 공백'],hot:['이주 노동자 밀집']},
+  {id:'jeonbuk',  name:'전북',  pop:'175만',   aging:26.3,single:37.1,welfare:7.8,youth:12.2, issues:['초고령 사회 진입','인구 소멸','청년 이탈'],hot:['초고령 사회 진입','인구 소멸']},
+  {id:'jeonnam',  name:'전남',  pop:'180만',   aging:28.7,single:36.8,welfare:8.1,youth:11.8, issues:['전국 최고 고령화율','기초수급 1위','도서 지역 소외'],hot:['전국 최고 고령화율','기초수급 1위']},
+  {id:'gwangju',  name:'광주',  pop:'142만',   aging:17.8,single:33.5,welfare:4.6,youth:16.1, issues:['청년 취업','지역 경제 침체','돌봄 공백'],hot:[]},
+  {id:'gyeongbuk',name:'경북',  pop:'256만',   aging:25.9,single:34.2,welfare:6.8,youth:12.5, issues:['농촌 고령화','지역 소멸','청년 급감'],hot:['농촌 고령화','지역 소멸']},
+  {id:'daegu',    name:'대구',  pop:'237만',   aging:20.1,single:33.2,welfare:4.2,youth:14.1, issues:['중장년 실직','청년 일자리','노인 빈곤'],hot:['중장년 실직']},
+  {id:'ulsan',    name:'울산',  pop:'111만',   aging:16.4,single:27.1,welfare:2.9,youth:15.0, issues:['산업 고령화','청년 유출 우려','산업재해'],hot:[]},
+  {id:'gyeongnam',name:'경남',  pop:'326만',   aging:19.8,single:30.5,welfare:4.7,youth:14.2, issues:['제조업 구조 조정','중장년 실직','이주 노동자'],hot:['제조업 구조 조정']},
+  {id:'busan',    name:'부산',  pop:'330만',   aging:22.4,single:35.1,welfare:4.8,youth:13.2, issues:['고령화 심화','청년 유출','독거노인'],hot:['고령화 심화','청년 유출']},
+  {id:'jeju',     name:'제주',  pop:'68만',    aging:17.9,single:31.4,welfare:4.1,youth:15.8, issues:['주거비 급등','이주민 급증','관광 의존 경제'],hot:['주거비 급등']},
+];
+
+const INDS={
+  aging: {label:'고령화율',   unit:'%',color:'#E07B4A',desc:'65세 이상 인구 비율'},
+  single:{label:'1인 가구',   unit:'%',color:'#7BAAE8',desc:'전체 가구 중 1인 가구'},
+  welfare:{label:'기초수급',  unit:'%',color:'#F6BE00',desc:'기초생활수급자 비율'},
+  youth: {label:'청년 비율',  unit:'%',color:'#52A874',desc:'19~34세 청년 비율'},
+};
+
+/* ══════════════════════════════
+   SVG PATH DATA — 실제 GeoJSON(GADM 2018) 기반 Mercator 투영 사전 계산
+   ViewBox 0 0 370 510 · Python으로 계산 후 임베드 · CDN 의존성 없음
+   d: SVG path 배열, lx/ly: 레이블 위치(px)
+══════════════════════════════ */
+const SVG_PATHS = {"busan":{"d":["M308.7,302.7L297.9,328.2L279.5,329.0Z","M279.3,330.8L280.5,332.6L279.9,334.8L279.9,336.8L279.0,337.2L279.0,335.5L278.1,334.5L277.9,332.9Z","M293.6,327.7L294.6,328.8L295.0,329.9L295.3,330.8L295.7,332.0L294.3,331.5L293.4,330.5L292.3,329.6Z","M279.9,330.0L280.0,330.3L280.2,330.6L280.9,330.7L281.0,331.0L280.5,331.3L280.1,331.1L279.7,330.8Z","M281.2,330.5L281.6,330.6L282.1,330.7L282.6,330.7L282.8,330.7L282.1,330.9L281.5,330.8L281.2,330.7Z"],"lx":293.7,"ly":320.9,"name":"부산"},"chungbuk":{"d":["M229.0,144.3L246.8,142.2L245.1,149.2L267.7,157.0L252.5,178.8L230.9,178.3L230.7,187.7L214.1,196.8L220.2,205.7L216.6,225.9L229.5,233.8L219.7,248.0L204.4,247.2L193.8,228.8L197.5,214.9L179.7,194.5L189.3,182.2L181.4,171.8L212.6,139.6L216.0,148.1Z"],"lx":216.0,"ly":178.4,"name":"충북"},"chungnam":{"d":["M133.9,152.6L184.7,175.6L189.3,182.2L179.8,193.9L186.9,202.0L179.8,223.6L199.3,231.3L204.9,249.2L160.9,233.9L143.8,247.8L132.9,236.3L138.8,217.4L132.4,211.6L140.4,205.0L133.0,209.5L137.1,202.5L109.0,179.0L121.1,160.4L119.9,176.3L124.9,173.8L129.0,167.4L122.5,158.6Z","M124.4,193.0L125.4,197.6L127.3,203.8L128.4,208.9L127.9,212.0L124.0,210.2L122.4,206.3L122.3,198.2Z","M129.0,213.8L129.1,215.4L130.4,215.9L129.7,216.4L128.1,215.7L126.5,215.5L126.7,214.2L128.1,215.0Z","M128.8,152.7L129.3,153.0L129.9,153.2L130.2,153.9L129.6,154.8L128.9,154.9L128.4,153.9L128.2,153.3Z","M124.3,216.3L124.6,217.0L125.0,218.1L124.7,218.8L124.0,218.7L123.3,218.8L123.4,218.1L123.9,217.6Z"],"lx":157.1,"ly":199.0,"name":"충남"},"daegu":{"d":["M270.6,251.2L270.4,276.5L253.9,286.5L253.1,261.0Z"],"lx":261.8,"ly":264.2,"name":"대구"},"daejeon":{"d":["M185.8,207.4L197.8,216.0L191.1,232.2L179.8,223.6Z"],"lx":188.4,"ly":217.0,"name":"대전"},"gangwon":{"d":["M249.8,11.5L267.0,60.4L312.3,137.2L305.1,157.2L268.1,157.2L240.3,140.2L215.4,147.8L216.5,112.2L197.2,97.5L203.1,76.7L193.5,61.4L171.0,60.1L163.7,49.4L179.6,37.7L232.2,39.4Z","M260.7,36.8L260.7,36.8L260.9,36.9L260.9,37.1L260.7,37.1L260.7,37.0L260.6,37.1L260.5,37.0L260.6,36.9Z","M265.8,49.5L265.8,49.5L265.8,49.7L265.7,49.7L265.6,49.7L265.6,49.7L265.6,49.7L265.6,49.6L265.7,49.5Z","M310.4,132.7L310.4,132.8L310.4,132.8L310.5,132.9L310.5,133.0L310.4,133.0L310.4,133.0L310.3,132.9L310.3,132.8Z","M255.2,22.9L255.2,23.0L255.2,23.0L255.2,23.1L255.2,23.2L255.1,23.2L255.0,23.2L255.0,23.0Z"],"lx":249.2,"ly":93.3,"name":"강원"},"gwangju":{"d":["M162.8,319.6L158.2,332.9L144.2,327.1Z"],"lx":155.2,"ly":324.4,"name":"광주"},"gyeonggi":{"d":["M163.8,48.8L171.0,60.1L193.5,61.4L203.2,77.5L198.8,103.9L216.5,112.2L213.7,139.0L181.4,171.8L154.4,165.0L145.9,149.7L153.9,144.9L142.6,142.1L153.2,131.7L140.6,130.2L142.6,141.2L135.4,140.6L151.2,123.1L150.2,111.9L174.4,117.3L169.6,98.8L151.7,107.8L135.3,99.3Z","M134.4,134.9L134.9,135.8L135.3,136.3L135.7,137.3L135.3,137.5L134.2,138.0L134.8,137.1L134.4,136.0Z","M140.9,142.4L141.5,142.7L141.3,143.3L141.2,143.6L141.0,143.8L140.8,144.2L140.6,143.1L140.6,142.7Z","M144.6,133.0L144.9,133.1L144.8,133.5L144.6,133.7L143.8,133.8L143.9,133.4L144.0,133.1L144.1,133.1Z","M148.6,132.4L148.7,132.6L148.7,132.9L148.5,133.0L148.2,133.0L148.0,132.8L148.1,132.6L148.2,132.4Z"],"lx":167.8,"ly":126.9,"name":"경기"},"gyeongbuk":{"d":["M312.0,143.6L320.0,179.5L313.2,244.7L326.5,244.1L318.0,283.3L298.2,276.7L266.3,289.3L262.0,278.0L275.0,264.3L270.1,251.1L253.1,261.0L253.4,286.0L222.6,261.1L219.8,247.1L229.5,233.0L216.6,225.9L220.2,205.7L214.1,196.8L230.7,187.7L230.9,178.3L252.5,178.8L275.2,151.8L304.7,157.4Z","M316.4,246.5L316.4,246.6L316.5,246.6L316.4,246.8L316.4,246.8L316.4,246.7L316.4,246.7L316.4,246.7Z"],"lx":276.2,"ly":203.5,"name":"경북"},"gyeongnam":{"d":["M225.7,263.9L242.8,283.7L291.6,284.7L305.4,302.4L279.5,329.0L265.3,324.7L267.0,317.3L267.1,330.7L250.2,332.5L258.7,335.3L252.9,337.2L253.9,357.6L248.1,340.6L230.5,343.0L229.0,327.0L227.8,338.3L213.8,341.9L202.9,313.8L204.0,289.5L213.3,264.7Z","M269.8,333.1L273.7,355.4L263.4,362.9L264.1,350.2L256.9,347.5L266.5,346.2Z","M220.6,341.4L231.1,362.3L217.1,358.8Z","M229.2,343.5L232.7,351.8L225.3,350.5Z","M242.1,350.7L243.0,352.2L243.6,353.5L242.6,354.2L241.6,354.3L240.5,353.2L239.9,352.1Z"],"lx":239.8,"ly":297.0,"name":"경남"},"incheon":{"d":["M145.8,105.2L150.2,119.2L142.4,127.2L140.0,108.6L124.8,118.5Z","M128.9,83.1L134.0,104.6L125.0,102.9Z","M117.0,84.3L119.9,85.3L123.0,86.1L121.5,88.4L119.5,88.9L116.5,90.4L115.1,89.1L115.6,86.6Z","M122.0,90.3L122.0,94.1L124.4,95.5L125.2,98.3L123.6,100.1L122.2,97.5L120.0,95.5L119.9,93.7Z","M131.7,132.4L133.5,133.9L132.4,135.7L132.1,137.0L131.1,137.9L129.0,137.1L129.2,133.8L130.3,133.4Z"],"lx":134.6,"ly":116.9,"name":"인천"},"jeju":{"d":["M135.5,465.3L153.4,462.2L161.3,471.3L139.6,490.4L112.5,486.9L118.5,473.0Z","M161.9,465.3L162.0,466.3L162.9,466.5L162.8,467.3L162.6,468.4L161.5,468.1L161.1,467.5L161.1,466.5Z","M119.1,495.5L119.3,495.7L119.5,496.0L119.2,496.2L119.2,496.5L118.8,496.2L118.6,496.1Z","M116.4,475.0L116.5,475.2L116.5,475.6L116.4,475.8L116.3,475.9L116.1,475.7L115.9,475.6L115.9,475.3Z","M118.8,499.8L118.9,500.5L118.8,501.0L118.6,500.9L118.6,500.8L118.5,500.5L118.6,500.3L118.6,500.1Z"],"lx":136.4,"ly":477.9,"name":"제주"},"jeonbuk":{"d":["M129.1,298.9L144.3,288.6L131.2,283.9L134.3,271.3L152.2,271.1L144.9,262.2L154.0,256.7L134.6,250.6L158.0,235.3L222.2,253.5L208.1,273.4L203.3,312.9L173.7,310.6L156.9,295.8L137.3,311.0Z","M121.1,281.8L121.0,284.2L120.0,284.6L118.5,286.1L117.6,285.3L118.1,284.2L119.4,283.1L119.8,282.6Z","M133.8,259.4L132.9,262.5L132.5,264.4L131.1,264.5L130.2,265.5L129.9,264.0L131.3,263.8Z","M127.5,263.1L128.5,264.2L128.0,265.4L127.2,265.6L126.7,265.3L126.4,264.1L127.1,264.8L127.5,263.9Z","M128.9,264.8L129.3,265.3L129.6,265.5L129.5,265.8L128.9,266.3L128.4,266.5L127.9,266.2L128.2,265.0Z"],"lx":170.9,"ly":270.4,"name":"전북"},"jeonnam":{"d":["M212.1,359.3L201.0,369.2L197.0,347.4L187.1,351.1L196.5,372.4L186.8,373.1L192.0,377.5L185.2,385.7L171.7,376.6L185.1,358.5L161.8,369.0L157.4,387.4L151.3,368.3L134.7,398.7L131.1,377.2L118.3,362.7L130.2,373.4L126.1,361.9L141.0,369.0L124.7,359.6L128.1,346.5L120.5,339.7L126.5,334.0L117.3,326.3L130.6,330.0L120.8,316.4L128.5,298.8L137.3,311.0L156.9,295.8L173.7,310.6L196.8,308.2L214.2,337.3L200.6,346.3L213.4,349.2Z","M117.6,372.7L124.9,385.7L110.0,393.0Z","M145.0,389.1L150.7,399.2L142.3,395.7Z","M211.3,360.1L213.3,362.6L213.3,363.2L214.7,367.3L214.9,371.8L211.3,372.1L209.8,368.3L212.1,364.6Z","M178.2,380.9L178.9,384.0L177.0,386.6L173.7,387.0L171.0,385.3L170.8,383.2L172.5,382.1L175.3,381.8Z"],"lx":161.5,"ly":347.3,"name":"전남"},"seoul":{"d":["M168.1,98.8L173.2,119.3L150.2,111.9Z"],"lx":162.8,"ly":107.8,"name":"서울"},"ulsan":{"d":["M298.8,276.7L318.7,282.5L312.5,305.3L291.1,291.7Z","M312.4,296.8L312.4,296.9L312.3,296.9L312.2,297.0L312.1,297.1L312.0,297.2L312.1,297.0L312.2,296.9Z","M313.1,289.0L313.2,289.1L313.3,289.1L313.3,289.2L313.4,289.3L313.3,289.2L313.3,289.2L313.1,289.2Z","M312.6,299.6L312.6,299.7L312.6,299.7L312.6,299.8L312.6,299.8L312.6,299.8L312.6,299.8L312.6,299.9L312.5,299.9L312.5,299.9L312.5,299.9L312.5,299.9L312.4,299.9L312.4,299.6Z","M313.1,288.8L313.2,288.9L313.3,288.9L313.3,289.0L313.3,289.1L313.3,289.1L313.2,289.0L313.1,289.0L313.1,288.9L313.1,288.9Z"],"lx":308.7,"ly":289.1,"name":"울산"},"sejong":{"d":["M175.9,209.2L176.0,192.2L184.3,190.0L188.6,199.7L186.9,210.2L181.9,213.6L177.8,212.0Z"],"lx":182.8,"ly":201.7,"name":"세종"}};
+
+/* ══════════════════════════════
+   HELPERS
+══════════════════════════════ */
+let curMapInd='aging', curBarInd='aging', selId=null;
+
+function vals(ind){return RGS.map(r=>r[ind])}
+function minV(ind){return Math.min(...vals(ind))}
+function maxV(ind){return Math.max(...vals(ind))}
+function rank(id,ind){
+  const s=[...RGS].sort((a,b)=>b[ind]-a[ind]);
+  return s.findIndex(r=>r.id===id)+1;
+}
+function avg(ind){return RGS.reduce((s,r)=>s+r[ind],0)/RGS.length}
+
+function hexToRgb(h){
+  const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+  return {r,g,b};
+}
+function fillColor(val,mn,mx,hex){
+  const t=Math.max(0,Math.min(1,(val-mn)/(mx-mn)));
+  const {r,g,b}=hexToRgb(hex);
+  return `rgba(${r},${g},${b},${(0.12+t*0.78).toFixed(2)})`;
+}
+function strokeColor(val,mn,mx,hex){
+  const t=Math.max(0,Math.min(1,(val-mn)/(mx-mn)));
+  const {r,g,b}=hexToRgb(hex);
+  return `rgba(${r},${g},${b},${(0.25+t*0.5).toFixed(2)})`;
+}
+
+/* ══════════════════════════════
+   SVG MAP (순수 DOM — CDN 의존성 없음)
+══════════════════════════════ */
+const PROVINCE_IDS=['gangwon','gyeonggi','chungbuk','chungnam','jeonbuk','jeonnam','gyeongbuk','gyeongnam','jeju'];
+const CITY_IDS=['incheon','seoul','sejong','daejeon','gwangju','daegu','ulsan','busan'];
+const DRAW_ORDER=[...PROVINCE_IDS,...CITY_IDS];
+
+function buildMap(){
+  const NS='http://www.w3.org/2000/svg';
+  const svgEl=document.getElementById('korea-svg');
+  svgEl.innerHTML='';
+
+  const ind=curMapInd;
+  const mn=minV(ind), mx=maxV(ind);
+  const color=INDS[ind].color;
+  const {r,g:gv,b}=hexToRgb(color);
+
+  /* defs: glow filter for selected region */
+  const defs=document.createElementNS(NS,'defs');
+  defs.innerHTML=`
+    <filter id="sel-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+      <feFlood flood-color="${color}" flood-opacity="0.5" result="col"/>
+      <feComposite in="col" in2="blur" operator="in" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>`;
+  svgEl.appendChild(defs);
+
+  /* Draw provinces first, then cities on top */
+  DRAW_ORDER.forEach(id=>{
+    const pd=SVG_PATHS[id];
+    const rg=RGS.find(r=>r.id===id);
+    if(!pd||!rg) return;
+
+    const v=rg[ind];
+    const fc=fillColor(v,mn,mx,color);
+    const isSel=(selId===id);
+    const isCity=CITY_IDS.includes(id);
+
+    const grp=document.createElementNS(NS,'g');
+    grp.setAttribute('class','r-tile');
+    grp.setAttribute('data-id',id);
+
+    /* Path(s) — each province/city may have multiple polygons (islands etc.) */
+    pd.d.forEach(pathStr=>{
+      const p=document.createElementNS(NS,'path');
+      p.setAttribute('d',pathStr);
+      p.setAttribute('fill',fc);
+      p.setAttribute('stroke',isSel?'rgba(255,255,255,0.95)':isCity?'rgba(255,255,255,0.22)':'rgba(8,8,20,0.8)');
+      p.setAttribute('stroke-width',isSel?'2':isCity?'0.7':'0.5');
+      p.setAttribute('stroke-linejoin','round');
+      if(isSel) p.setAttribute('filter','url(#sel-glow)');
+      grp.appendChild(p);
+    });
+
+    /* Label (세종 is too small — skip value line, but still show name) */
+    const isSmall=isCity;
+    const fs=isSmall?8.5:10.5;
+    const labelDy=isSmall?0:-5;
+
+    const t1=document.createElementNS(NS,'text');
+    t1.setAttribute('x',pd.lx);
+    t1.setAttribute('y',pd.ly+labelDy);
+    t1.setAttribute('text-anchor','middle');
+    t1.setAttribute('dominant-baseline','middle');
+    t1.setAttribute('fill','rgba(255,255,255,0.92)');
+    t1.setAttribute('font-size',fs);
+    t1.setAttribute('font-weight','700');
+    t1.setAttribute('font-family','Pretendard Variable,Pretendard,-apple-system,sans-serif');
+    t1.setAttribute('letter-spacing','-0.03em');
+    t1.setAttribute('paint-order','stroke');
+    t1.setAttribute('stroke','rgba(0,0,0,0.7)');
+    t1.setAttribute('stroke-width','3px');
+    t1.setAttribute('stroke-linejoin','round');
+    t1.setAttribute('pointer-events','none');
+    t1.textContent=rg.name;
+    grp.appendChild(t1);
+
+    if(!isSmall||isSel){
+      const t2=document.createElementNS(NS,'text');
+      t2.setAttribute('x',pd.lx);
+      t2.setAttribute('y',pd.ly+labelDy+12);
+      t2.setAttribute('text-anchor','middle');
+      t2.setAttribute('dominant-baseline','middle');
+      t2.setAttribute('fill','rgba(255,255,255,0.6)');
+      t2.setAttribute('font-size','8');
+      t2.setAttribute('font-family','Pretendard Variable,Pretendard,-apple-system,sans-serif');
+      t2.setAttribute('paint-order','stroke');
+      t2.setAttribute('stroke','rgba(0,0,0,0.5)');
+      t2.setAttribute('stroke-width','2px');
+      t2.setAttribute('pointer-events','none');
+      t2.textContent=v.toFixed(1)+'%';
+      grp.appendChild(t2);
+    }
+
+    /* Tooltip + interaction */
+    const ttEl=document.getElementById('map-tooltip');
+    grp.addEventListener('mousemove',function(event){
+      const meta=INDS[ind];
+      document.getElementById('tt-name').textContent=rg.name;
+      document.getElementById('tt-val').textContent=`${meta.label} ${v.toFixed(1)}${meta.unit}`;
+      ttEl.style.left=(event.clientX+14)+'px';
+      ttEl.style.top=(event.clientY-36)+'px';
+      ttEl.classList.add('show');
+    });
+    grp.addEventListener('mouseleave',function(){
+      ttEl.classList.remove('show');
+    });
+    grp.addEventListener('click',function(){selectRegion(id);});
+
+    svgEl.appendChild(grp);
+  });
+
+  /* Legend gradient */
+  document.getElementById('leg-bar').style.background=
+    `linear-gradient(90deg,rgba(${r},${gv},${b},0.12),rgba(${r},${gv},${b},0.9))`;
+}
+
+/* ══════════════════════════════
+   SELECT & DETAIL
+══════════════════════════════ */
+function selectRegion(id){
+  selId=id;
+  buildMap();
+  renderDetail();
+}
+
+function renderDetail(){
+  const rg=RGS.find(r=>r.id===selId);
+  if(!rg)return;
+  const col=document.getElementById('detail-col');
+
+  const mn={},mx={},av={};
+  Object.keys(INDS).forEach(ind=>{
+    mn[ind]=minV(ind);mx[ind]=maxV(ind);av[ind]=avg(ind);
+  });
+
+  const icHTML=Object.entries(INDS).map(([key,meta])=>{
+    const v=rg[key];
+    const pct=Math.round((v-mn[key])/(mx[key]-mn[key])*100);
+    const ap=Math.round((av[key]-mn[key])/(mx[key]-mn[key])*100);
+    const rk=rank(rg.id,key);
+    const diffStr=(v-av[key]).toFixed(1);
+    const diffCol=key==='youth'?(v>av[key]?'#4A8C42':'#C8172E'):(v>av[key]?'#C8172E':'#4A8C42');
+    return `
+      <div class="ic">
+        <div class="ic-lbl">${meta.label}</div>
+        <div class="ic-val" style="color:${meta.color}">${v.toFixed(1)}<span class="ic-unit">${meta.unit}</span></div>
+        <div class="ic-bar-wrap"><div class="ic-bar" style="width:${pct}%;background:${meta.color}"></div></div>
+        <div class="ic-avg">
+          <span class="ic-avg-lbl">전국 ${av[key].toFixed(1)}%</span>
+          <div class="ic-avg-track">
+            <div class="ic-avg-fill" style="width:${ap}%"></div>
+            <div class="ic-avg-dot" style="left:${ap}%"></div>
+          </div>
+          <span style="font-size:9px;color:${diffCol};white-space:nowrap;font-weight:600">${v>av[key]?'+':''}${diffStr}%p</span>
+        </div>
+        <div class="ic-rank">전국 ${rk}위 / 17</div>
+      </div>`;
+  }).join('');
+
+  const tagHTML=rg.issues.map(t=>`<span class="rd-tag${rg.hot.includes(t)?' hot':''}">${t}</span>`).join('');
+
+  col.innerHTML=`
+    <div class="rd-top">
+      <div class="rd-eyebrow">시도별 복지현안 진단</div>
+      <div class="rd-name">${rg.name}</div>
+      <div class="rd-meta">인구 약 ${rg.pop} · 기준연도 2024 · 샘플 데이터</div>
+      <div class="rd-divider"></div>
+      <div style="font-size:12px;color:var(--muted)">4개 핵심 지표를 전국 평균과 비교합니다</div>
+    </div>
+    <div class="ind-cards">${icHTML}</div>
+    <div class="rd-issues-wrap">
+      <div class="rd-issues-lbl">주요 복지현안</div>
+      <div class="rd-tags">${tagHTML}</div>
+    </div>`;
+}
+
+/* ══════════════════════════════
+   BAR CHART
+══════════════════════════════ */
+function renderBarChart(ind){
+  const meta=INDS[ind];
+  const sorted=[...RGS].sort((a,b)=>b[ind]-a[ind]);
+  const top5=sorted.slice(0,5);
+  const bot5=sorted.slice(-5).reverse();
+  const mx=maxV(ind);
+  function row(rg){
+    const pct=Math.round(rg[ind]/mx*100);
+    return `<div class="b-row">
+      <div class="b-nm">${rg.name}</div>
+      <div class="b-track"><div class="b-fill" style="width:${pct}%;background:${meta.color}"></div></div>
+      <div class="b-vl" style="color:${meta.color}">${rg[ind].toFixed(1)}%</div>
+    </div>`;
+  }
+  document.getElementById('bar-wrap').innerHTML=`
+    <div class="b-divider"><div class="b-div-line"></div><span class="b-div-lbl">상위 5개 지역</span><div class="b-div-line"></div></div>
+    ${top5.map(row).join('')}
+    <div class="b-divider" style="margin-top:24px"><div class="b-div-line"></div><span class="b-div-lbl">하위 5개 지역</span><div class="b-div-line"></div></div>
+    ${bot5.map(row).join('')}`;
+}
+
+/* ══════════════════════════════
+   SWITCHERS
+══════════════════════════════ */
+function switchDashTab(id,btn){
+  document.querySelectorAll('.d-tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.d-tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('dtab-'+id).classList.add('active');
+  btn.classList.add('active');
+  /* SVG uses fixed viewBox — no layout measurement needed; call directly */
+  if(id==='regional') buildMap();
+}
+function switchBarInd(ind,btn){
+  curBarInd=ind;
+  document.querySelectorAll('#dtab-national .ind-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBarChart(ind);
+}
+function switchMapInd(ind,btn){
+  curMapInd=ind;
+  document.querySelectorAll('#dtab-regional .ind-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  buildMap();
+}
+
+/* SVG uses fixed viewBox="0 0 370 510" — no resize rebuild needed */
+
+/* ══════════════════════════════
+   INIT
+══════════════════════════════ */
+renderBarChart('aging');
+/* Map은 탭 전환 시 buildMap() 호출 — 초기에는 숨겨진 탭이므로 생략 */
+
+</script>
+</body>
+</html>
